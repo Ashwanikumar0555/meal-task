@@ -38,24 +38,41 @@
 
 
 
+
+
+
+
 import React, { useState } from 'react';
 import Card from './Card';
 
 const MainPage = () => {
   const [data, setData] = useState(null); 
   const [search, setSearch] = useState('');
+  const [msg, setMsg] = useState('');
 
   const handleInput = (event) => {
     setSearch(event.target.value);
   };
 
   const myFun = async () => {
-    try {
-      const response = await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${search}`);
-      const jsonData = await response.json();
-      setData(jsonData.meals);
-    } catch (error) {
-      console.error('Error fetching data:', error);
+    if (search === '') {
+      setMsg('Please Enter Something');
+      setData(null); 
+    } else {
+      try {
+        const response = await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${search}`);
+        const jsonData = await response.json();
+        if (jsonData.meals) {
+          setData(jsonData.meals);
+          setMsg(''); 
+        } else {
+          setData(null); 
+          setMsg('No results found.');
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setMsg('An error occurred while fetching data. Please try again.');
+      }
     }
   };
 
@@ -63,6 +80,7 @@ const MainPage = () => {
 
   return (
     <>
+      <h1 className='head'>FOOD RECIPE</h1>
       <div className="container">
         <div className="searchBar">
           <input 
@@ -72,7 +90,9 @@ const MainPage = () => {
             onChange={handleInput} 
           />
           <button onClick={myFun}>Search</button>
+          <h3>{msg}</h3> 
         </div>
+        
         <Card detail={data} />
       </div>
     </>
@@ -80,4 +100,3 @@ const MainPage = () => {
 };
 
 export default MainPage;
-
